@@ -10,11 +10,12 @@ class DB
 	static function getConnection()
 	{
 		// mysqli_report(MYSQLI_REPORT_STRICT);
-		$username = "root";
-		$password = "";
+		$database = $_ENV['DB_NAME'];
+		$username = $_ENV['DB_USER'];
+		$password = $_ENV['DB_PASSWORD'];
 		try {
 			// $conn = mysqli_connect($server,$username,$password,$database);
-			$conn = new \PDO('mysql:host=localhost;dbname=test', $username, $password, [
+			$conn = new \PDO("mysql:host=localhost;dbname=$database", $username, $password, [
 				\PDO::ATTR_PERSISTENT => true,
 			]);
 			return $conn;
