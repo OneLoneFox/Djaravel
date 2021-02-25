@@ -205,6 +205,11 @@ class Model {
 		foreach($this->getFields() as $column => $field){
 			$data[$column] = $this->{$column};
 		}
+		return $data;
+	}
+
+	function toJson(){
+		$data = $this->serialize();
 		return json_encode($data);
 	}
 
