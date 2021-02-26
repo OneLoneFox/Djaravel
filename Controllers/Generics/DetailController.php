@@ -2,7 +2,8 @@
 
 namespace Djaravel\Controllers\Generics;
 
-class DetailController extends BaseController{
+class DetailController extends BaseController
+{
 
 	protected $template = 'generic_detail.html';
 

@@ -1,5 +1,5 @@
 <?php 
 
-namespace Core\Exceptions;
+namespace Djaravel\Core\Exceptions;
 
 class ImproperlyConfiguredException extends \Exception{}

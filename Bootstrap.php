@@ -15,6 +15,9 @@ $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__."/../");
 $dotenv->load();
 $dotenv->required(['BASE_DIR', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']);
 
+# Initialize session
+session_start();
+
 
 spl_autoload_register(function($class){
 	$base_dir = $_SERVER['DOCUMENT_ROOT'].'/'.$_ENV['BASE_DIR'].DIRECTORY_SEPARATOR;

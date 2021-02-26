@@ -2,7 +2,8 @@
 
 namespace Djaravel\Controllers\Generics;
 
-class ListController extends BaseController{
+class ListController extends BaseController
+{
 
 	protected $template = 'generic_list.html';
 

@@ -2,7 +2,8 @@
 
 namespace Djaravel\Controllers\Generics;
 
-class DeleteController extends BaseController{
+class DeleteController extends BaseController
+{
 
 	protected $template = 'generic_delete.html';
 	protected $success_url;

@@ -121,20 +121,20 @@ class Model {
 	}
 
 	static function getListUrl(){
-		$url = sprintf("/%s/%s", $_ENV['BASE_DIR'], static::$baseRoute);
+		$url = sprintf("/%s", static::$baseRoute);
 		return $url;
 	}
 
 	function getDetailUrl(){
-		$url = sprintf("/%s/%s/%d",
-			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
+		$url = sprintf("/%s/%d",
+			static::$baseRoute, $this->id
 		);
 		return $url;
 	}
 
 	public function getDeleteUrl(){
-		$url = sprintf("/%s/%s/%d/delete",
-			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
+		$url = sprintf("/%s/%d/delete",
+			static::$baseRoute, $this->id
 		);
 		return $url;
 	}
