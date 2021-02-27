@@ -1,9 +1,10 @@
 <?php 
 
-require_once 'Djaravel/dotenv/vendor/autoload.php';
-require_once 'Djaravel/twig/vendor/autoload.php';
-require_once 'Djaravel/router/vendor/autoload.php';
-require_once 'Djaravel/whoops/vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
+// require_once 'Djaravel/dotenv/vendor/autoload.php';
+// require_once 'Djaravel/twig/vendor/autoload.php';
+// require_once 'Djaravel/router/vendor/autoload.php';
+// require_once 'Djaravel/whoops/vendor/autoload.php';
 
 # Initialize `whoops` Error Handler
 $whoops = new \Whoops\Run;
@@ -20,7 +21,7 @@ session_start();
 
 
 spl_autoload_register(function($class){
-	$base_dir = $_SERVER['DOCUMENT_ROOT'].'/'.$_ENV['BASE_DIR'].DIRECTORY_SEPARATOR;
+	$base_dir = __DIR__."/../".DIRECTORY_SEPARATOR;
 	$file = $base_dir . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 
 	if(file_exists($file)){

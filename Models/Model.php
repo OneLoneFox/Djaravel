@@ -145,7 +145,9 @@ class Model {
 
 	function getFields(){
 		// This metod must return an array of Field objects that match the database Schema
-		throw new UnimplementedException('You must implement the getFields() method in your model');
+		throw new UnimplementedException(
+			sprintf('The getFields() method is missing on %s', static::class)
+		);
 	}
 
 	function __get($name){
