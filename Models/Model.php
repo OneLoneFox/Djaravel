@@ -4,6 +4,7 @@ namespace Djaravel\Models;
 
 use \Djaravel\Core\Exceptions\UnimplementedException;
 use \Djaravel\Utils\DB;
+use \Djaravel\Models\Fields\PrimaryKeyField;
 
 class Model {
 	private static $statement;
@@ -13,7 +14,7 @@ class Model {
 
 	static function all(){
 		$connection = DB::getConnection();
-		$query = $connection->query("select * from ".static::$table);
+		$query = $connection->query("SELECT * FROM ".static::$table);
 		$result = $query->fetchAll(\PDO::FETCH_CLASS, static::class);
 		return $result;
 	}
@@ -54,6 +55,7 @@ class Model {
 			static::$queryParams[] = $args[1];
 		}
 		if(count($args) == 3){
+			# arg[0] is the column, arg[1] is the operator, arg[2] is the value
 			$query = $args[0] . ' ' . $args[1] . ' ?';
 			static::$queryParams[] = $args[2];
 		}
@@ -87,9 +89,9 @@ class Model {
 		return static::$_instance;
 	}
 
-	private static function validateQueryArgs(...$args){
+	protected static function validateQueryArgs(...$args){
 		if(count($args) == 1){ throw new \InvalidArgumentException("Expected 2 or more arguments, 1 given."); }
-		if( !array_key_exists($args[0], static::$_instance->getFields()) ){
+		if( !array_key_exists($args[0], static::getFields()) ){
 			throw new \InvalidArgumentException("The first argument must be a valid Field name");
 		}
 	}
@@ -116,34 +118,94 @@ class Model {
 	}
 	
 	public function save(){
-		echo sprintf("saving object %s into %s table", get_class($this), $this->table);
-		// Save any changes to the model into the database
+		// Check if the object already exists. ($this->id !== null)
+		if($this->id !== null){
+			if(static::exists($this->id)){
+				return $this->update();
+			}
+			throw new \Exception('Could not find object with id '.$this->id);
+		}
+		// If it doesn't, make an insert query.
+		return $this->create();
+	}
+
+	public function create(){
+		$connection = DB::getConnection();
+		$connection->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+		$columns = array_filter(
+			static::getFields(),
+			function($item){
+				return !$item instanceof PrimaryKeyField;
+			}
+		);
+		$valuesQuery = array_map(
+			function($c){
+				// prepare as :column for VALUES (:column1, :column2, :column3, ...)
+				return ":".$c;
+			},
+			array_keys($columns)
+		);
+		$valuesQuery = implode(', ', $valuesQuery);
+		$data = $this->serialize();
+		// We need to remove the id to prevent pdo errors
+		unset($data["id"]);
+		$insertColumns = implode(', ', array_keys($columns));
+		$prep = "INSERT INTO ".static::$table." (".$insertColumns.") VALUES (".$valuesQuery.")";
+		$query = $connection->prepare($prep);
+
+		return $query->execute($data);
+	}
+
+	public function update(){
+		// If it does then make an update query.
+		$connection = DB::getConnection();
+		// Get all columns except the primary key.
+		$columns = array_filter(
+			static::getFields(),
+			function($item){
+				return !$item instanceof PrimaryKeyField;
+			}
+		);
+		$setQuery = array_map(
+			function($c){
+				// prepare as column = :column
+				return $c." = :".$c;
+			},
+			array_keys($columns)
+		);
+		$setQuery = implode(', ', $setQuery);
+		$query = "UPDATE ".static::$table." SET ".$setQuery." WHERE id = :id";
+		// Use the serialized data which is already in a [$k => $v] format
+		$data = $this->serialize();
+		# execute($data)
+		die($query);
+		
 	}
 
 	static function getListUrl(){
-		$url = sprintf("/%s", static::$baseRoute);
+		$url = sprintf("/%s/%s", $_ENV['BASE_DIR'], static::$baseRoute);
 		return $url;
 	}
 
 	function getDetailUrl(){
-		$url = sprintf("/%s/%d",
-			static::$baseRoute, $this->id
+		$url = sprintf("/%s/%s/%d",
+			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
 		);
 		return $url;
 	}
 
 	public function getDeleteUrl(){
-		$url = sprintf("/%s/%d/delete",
-			static::$baseRoute, $this->id
+		$url = sprintf("/%s/%s/%d/delete",
+			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
 		);
 		return $url;
 	}
 
 	public function __toString(){
-		return sprintf('<%s object (%s)>', get_class($this), $this->id);
+		return sprintf('%s object (%s)', get_class($this), $this->id);
 	}
 
-	function getFields(){
+	static function getFields(){
 		// This metod must return an array of Field objects that match the database Schema
 		throw new UnimplementedException(
 			sprintf('The getFields() method is missing on %s', static::class)
@@ -152,7 +214,7 @@ class Model {
 
 	function __get($name){
 		# If it's a defined field return the plain value
-		if(array_key_exists($name, $this->getFields())){
+		if(array_key_exists($name, static::getFields())){
 			return $this->{$name};
 		}
 		# If it's a foreign property look for the correspongin model
@@ -164,7 +226,7 @@ class Model {
 			$foreignAttribute = $foreignAccess[1];
 
 			# gets the ForeignKeyField object 
-			$foreignField = $this->getFields()[$foreignFieldName];
+			$foreignField = static::getFields()[$foreignFieldName];
 
 			# gets the raw foreign key as if it was returning $this->{$name} without all the __relatedAttribute stuff
 			$fkValue = $this->{$foreignFieldName};
@@ -179,15 +241,6 @@ class Model {
 			$childClass = call_user_func([$this, $name]);
 			return $childClass;
 		}
-		// # If it's a field_set make a reverse lookup and return all the child objects
-		// if(strpos($name, '_set') !== false){
-		// 	$childrenName = explode('_set', $name);
-
-		// 	# how the fuck do I get the corresponding model?
-		// 	# options:
-		// 	# - first character to upper case and try to instance the result (dirty and still needs namespace)
-		// 	# 
-		// }
 	}
 
 	function __isset($name){
@@ -197,14 +250,63 @@ class Model {
 	}
 
 	function __set($name, $value){
+		# some type check and shit to see if the value can be set to that Field->type
+		// $field = $this->getFields()[$name];
+		// static::validateTypeValue($field, $value);
+		
+		# ToDo: if it's a foreign key allow the user to set it like myModelB.my_model_a = myModelA; only if my_model_a "fieldToSet" foreign key relatedModel matches the one trying to set
+
 		$this->{$name} = $value;
-		# some type check and shit to see if the value can be set to that TypeField
-		# if it's a foreign key allow the user to set it like myModelB.my_model_a = myModelA; only if my_model_a "fieldToSet" foreign key relatedModel matches the one trying to set
 	}
+
+	/**
+	protected static function validateTypeValue($field, $value){
+		// Everything is a string so no need to validate that
+		if ($field->type !== 'string'){
+			if(filter_var($value, $field->validate) === false){
+				throw new \InvalidArgumentException(
+					sprintf('Validation failed on %s',
+						// $value, $type, static::class
+					)
+				);
+			}
+		}else{
+			// We just validate lenght
+			if(strlen($value) > $field->maxLength){
+				throw new \InvalidArgumentException(
+					sprintf(
+						'Value %s(%s) exceeds maximum length (%s) of field (%s)',
+						$value, strlen($value), $field->maxLength, $field,
+					)
+				);
+			}
+		}
+	}
+	/**/
+
+	// static function fromArray($array){
+	// 	$fields = static::getFields();
+	// 	$_instance = new static;
+	// 	# filter out any non matching key, we don't need those
+	// 	$values = array_filter(
+	// 		$array, 
+	// 		function($key) use ($fields) {
+	// 			return array_key_exists($key, $fields);
+	// 		},
+	// 		ARRAY_FILTER_USE_KEY
+	// 	);
+
+	// 	foreach ($values as $key => $value){
+	// 		// The __set() method will handle validation
+	// 		$_instance->{$key} = $value;
+	// 	}
+	// 	# set all matching field values from the array to the object
+	// 	return $_instance;
+	// }
 
 	function serialize(){
 		$data = [];
-		foreach($this->getFields() as $column => $field){
+		foreach(static::getFields() as $column => $field){
 			$data[$column] = $this->{$column};
 		}
 		return $data;

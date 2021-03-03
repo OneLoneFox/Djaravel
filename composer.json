@@ -1,10 +1,11 @@
 {
-	"name": "Djaravel/Djaravel",
+	"name": "djaravel/djaravel",
 	"description": "A personal use minimal php framework",
     "require": {
         "filp/whoops": "^2.9",
         "bramus/router": "~1.5",
         "vlucas/phpdotenv": "^5.3",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+		"formr/formr": "^1.2"
     }
 }

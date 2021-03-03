@@ -40,6 +40,6 @@ trait RequestAccessTrait
 				)
 			);
 		}
-		Shortcuts::redirect($this->loginUrl);
+		Shortcuts::redirectBase($this->loginUrl);
 	}
 }

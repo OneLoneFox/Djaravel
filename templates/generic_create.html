@@ -1,3 +1,14 @@
 <h1>Form</h1>
+{% if form_errors %}
+<h2>Errors</h2>
+<div>
+	{% for field, errors in form_errors %}
+	<h3>{{ field }}</h3>
+		{% for error in errors %}
+		<p>{{ error }}</p>
+		{% endfor %}
+	{% endfor %}
+</div>
+{% endif %}
 
-{{ form }}
+{{ form.fastform(form_data) }}

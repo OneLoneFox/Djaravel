@@ -1,10 +1,6 @@
 <?php 
 
 require_once __DIR__.'/vendor/autoload.php';
-// require_once 'Djaravel/dotenv/vendor/autoload.php';
-// require_once 'Djaravel/twig/vendor/autoload.php';
-// require_once 'Djaravel/router/vendor/autoload.php';
-// require_once 'Djaravel/whoops/vendor/autoload.php';
 
 # Initialize `whoops` Error Handler
 $whoops = new \Whoops\Run;
