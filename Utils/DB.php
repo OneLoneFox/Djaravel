@@ -4,6 +4,7 @@ namespace Djaravel\Utils;
 
 class DB
 {
+	private static $_instance;
 	private $query;
 	private $queryArray;
 	
@@ -15,10 +16,17 @@ class DB
 		$password = $_ENV['DB_PASSWORD'];
 		try {
 			// $conn = mysqli_connect($server,$username,$password,$database);
-			$conn = new \PDO("mysql:host=localhost;dbname=$database", $username, $password, [
-				\PDO::ATTR_PERSISTENT => true,
-			]);
-			return $conn;
+			if(!isset(self::$_instance)){
+				$connection = new \PDO("mysql:host=localhost;dbname=$database", $username, $password, [
+					\PDO::ATTR_PERSISTENT => true,
+				]);
+				if($_ENV['DEBUG']){
+					$connection->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+				}
+
+				self::$_instance = $connection;
+			}
+			return self::$_instance;
 		} catch (Exception $e) {
 			echo "Error while connecting to database: <b>".$e->getMessage()."</b>";
 			die();

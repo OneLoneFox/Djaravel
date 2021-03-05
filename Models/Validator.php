@@ -26,15 +26,17 @@ class Validator
 					$this->errors[$name][] = 'Field '.$name.' must be of type '.$field->type;
 				}
 			}
-			if(strlen($value) > $field->maxLength){
-				$this->errors[$name][] = sprintf('Exceeded maximum length (%s)',$field->maxLength);
+			if(isset($field->maxLength)){
+				if(strlen($value) > $field->maxLength){
+					$this->errors[$name][] = sprintf('Exceeded maximum length (%s)',$field->maxLength);
+				}
 			}
 		}
 		return $this->errors;
 	}
 }
 
-/*
+/**
 class A{
 	static function set($name, $value){
 		$instance = new static;
@@ -55,8 +57,17 @@ class B extends A{
 	protected $foo;
 }
 
+class C{
+	static function set($class, $name, $value){
+		$instance = new $class;
+		$instance->{$name} = $value;
+	}
+}
+
 $b = new B();
 
-$b->set('foo', 'bar');
+$b::set('foo', 'bar');
 $b->set2('foo', 'bar');
-*/
+
+C::set(B::class, 'foo', 'baz');
+/**/

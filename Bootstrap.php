@@ -10,7 +10,7 @@ $whoops->register();
 # Initialize .env variables
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__."/../");
 $dotenv->load();
-$dotenv->required(['BASE_DIR', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']);
+$dotenv->required(['BASE_DIR', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DEBUG']);
 
 # Initialize session
 session_start();

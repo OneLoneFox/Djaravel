@@ -2,13 +2,43 @@
 
 namespace Djaravel\Models\Fields;
 
-class IntegerField extends Field{
-	public $maxLength;
-	public $inputType = 'number';
+class IntegerField extends Field
+{	
+	/**
+	 * inputType The type of html input element used
+	 *
+	 * @var String
+	 */
+	public $maxLength;	
+	/**
+	 * inputType The type of html input element used
+	 *
+	 * @var String
+	 */
+	public $inputType = 'number';	
+	/**
+	 * type The actual data type. Used for validation.
+	 *
+	 * @var String
+	 */
 	public $type = 'int';
+	/**
+	 * validate The filter const used for filter_var
+	 *
+	 * @var Mixed
+	 */
 	public $validate = FILTER_VALIDATE_INT;
-	public $invalidErrorMessage = 'error idk, fuck you.';
-
+	
+	/**
+	 * __construct
+	 *
+	 * @param  Int $maxLength
+	 * @param  String $verboseName
+	 * @param  Array[Mixed]String $choices
+	 * @param  Mixed $defaultSelected
+	 * 
+	 * @return void
+	 */
 	function __construct($maxLength, $verboseName = null, $choices = null, $defaultSelected = null){
 		if(!isset($maxLength)){
 			throw new \InvalidArgumentException('The property maxLength cannot be empty');

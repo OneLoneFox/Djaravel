@@ -2,11 +2,37 @@
 
 namespace Djaravel\Models\Fields;
 
-class VarcharField extends Field{
-	public $maxLength;
-	public $inputType = 'text';
+class VarcharField extends Field
+{	
+	/**
+	 * maxLength The maximum allowed length. Used for validation.
+	 *
+	 * @var Int
+	 */
+	public $maxLength;	
+	/**
+	 * inputType The type of html input element used
+	 *
+	 * @var String
+	 */
+	public $inputType = 'text';	
+	/**
+	 * type The actual data type. Used for validation.
+	 *
+	 * @var String
+	 */
 	public $type = 'string';
 
+	/**
+	 * __construct
+	 * 
+	 * @param Int $maxLength 
+	 * @param String|null $verboseName 
+	 * @param Array[Mixed]String|null $choices 
+	 * @param Mixed|null $defaultSelected 
+	 * 
+	 * @return void
+	 */
 	function __construct($maxLength, $verboseName = null, $choices = null, $defaultSelected = null){
 		if(!isset($maxLength)){
 			throw new \InvalidArgumentException('The property "maxLength" cannot be empty');

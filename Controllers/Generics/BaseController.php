@@ -20,7 +20,6 @@ class BaseController
 
 	function getContextData(...$args){
 		$context = [
-			'env' => 'PHP fucking sucks',
 			'user' => $_SESSION['user'] ?? null,
 		];
 		return $context;
