@@ -26,6 +26,7 @@ class VarcharField extends Field
 	/**
 	 * __construct
 	 * 
+	 * @param Bool $nullable
 	 * @param Int $maxLength 
 	 * @param String|null $verboseName 
 	 * @param Array[Mixed]String|null $choices 
@@ -33,14 +34,14 @@ class VarcharField extends Field
 	 * 
 	 * @return void
 	 */
-	function __construct($maxLength, $verboseName = null, $choices = null, $defaultSelected = null){
+	function __construct($nullable = false, $maxLength, $verboseName = null, $choices = null, $defaultSelected = null){
 		if(!isset($maxLength)){
 			throw new \InvalidArgumentException('The property "maxLength" cannot be empty');
 		}
 		if(!is_int($maxLength)){
 			throw new \InvalidArgumentException('The property "maxLength" must be an integer');
 		}
-		parent::__construct(false, false, $verboseName, $choices, $defaultSelected);
+		parent::__construct(false, $nullable, $verboseName, $choices, $defaultSelected);
 		$this->maxLength = $maxLength;
 	}
 }

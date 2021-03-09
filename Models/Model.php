@@ -128,10 +128,14 @@ class Model {
 		// If it doesn't, make an insert query.
 		return $this->create();
 	}
-
+	
+	/**
+	 * create
+	 *
+	 * @return Bool
+	 */
 	public function create(){
 		$connection = DB::getConnection();
-		$connection->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 		$columns = array_filter(
 			static::getFields(),
 			function($item){
@@ -181,19 +185,34 @@ class Model {
 		die($query);
 		
 	}
-
+	
+	/**
+	 * Returns the default list url for the model
+	 *
+	 * @return String
+	 */
 	static function getListUrl(){
 		$url = sprintf("/%s/%s", $_ENV['BASE_DIR'], static::$baseRoute);
 		return $url;
 	}
-
+	
+	/**
+	 * Returns the default detail url for the model
+	 *
+	 * @return String
+	 */
 	function getDetailUrl(){
 		$url = sprintf("/%s/%s/%d",
 			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
 		);
 		return $url;
 	}
-
+	
+	/**
+	 * Returns the default delete url for the model
+	 *
+	 * @return String
+	 */
 	public function getDeleteUrl(){
 		$url = sprintf("/%s/%s/%d/delete",
 			$_ENV['BASE_DIR'], static::$baseRoute, $this->id
@@ -204,7 +223,12 @@ class Model {
 	public function __toString(){
 		return sprintf('%s object (%s)', get_class($this), $this->id);
 	}
-
+	
+	/**
+	 * Returns an assoiciative array containing the table column names and Field instances
+	 *
+	 * @return Array[String]Object
+	 */
 	static function getFields(){
 		// This metod must return an array of Field objects that match the database Schema
 		throw new UnimplementedException(
@@ -303,7 +327,12 @@ class Model {
 	// 	# set all matching field values from the array to the object
 	// 	return $_instance;
 	// }
-
+	
+	/**
+	 * Converts the object and it's properties (defined on the getFields method) to an associative array
+	 *
+	 * @return Array[String]String
+	 */
 	function serialize(){
 		$data = [];
 		foreach(static::getFields() as $column => $field){
@@ -311,7 +340,12 @@ class Model {
 		}
 		return $data;
 	}
-
+	
+	/**
+	 * Converts the object to a JSON string representation
+	 *
+	 * @return String
+	 */
 	function toJson(){
 		$data = $this->serialize();
 		return json_encode($data);
