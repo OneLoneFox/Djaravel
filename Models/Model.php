@@ -156,8 +156,12 @@ class Model {
 		$insertColumns = implode(', ', array_keys($columns));
 		$prep = "INSERT INTO ".static::$table." (".$insertColumns.") VALUES (".$valuesQuery.")";
 		$query = $connection->prepare($prep);
+		$result = $query->execute($data);
 
-		return $query->execute($data);
+		if ($result) {
+			$this->id = $connection->lastInsertId();
+		}
+		return $result;
 	}
 
 	public function update(){
