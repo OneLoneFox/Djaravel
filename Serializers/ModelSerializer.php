@@ -1,7 +1,7 @@
 <?php
 
 namespace Djaravel\Serializers;
-use \Djravel\Models\Model;
+use \Djaravel\Models\Model;
 
 class ModelSerializer{
 	public $data;
@@ -17,9 +17,9 @@ class ModelSerializer{
 			);
 			$this->data = $data;
 		}elseif ($objects instanceof Model) {
-			# code...
+			$this->data = $objects->toJson();
 		}else{
-			throw new InvalidArgumentException('The constructor only accepts instances of Model or an array of instances.');
+			throw new \InvalidArgumentException('The constructor only accepts instances of Model or an array of instances.');
 			
 		}
 	}
