@@ -106,6 +106,12 @@ class Model {
 		$query->setFetchMode(\PDO::FETCH_CLASS, static::class);
 		$query->execute(static::$queryParams);
 		$result = $query->fetchAll();
+
+		// clear afterwards to allow making a new query
+		static::$_instance = null;
+		static::$query = null;
+		static::$queryParams = null;
+
 		return $result;
 	}
 	
