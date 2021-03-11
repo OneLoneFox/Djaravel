@@ -115,6 +115,10 @@ class Model {
 
 		return $result;
 	}
+
+	function first(){
+		return self::getQuery()[0];
+	}
 	
 	static function delete($id){
 		$connection = DB::getConnection();
