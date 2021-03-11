@@ -39,7 +39,7 @@ class Model {
 		if(!isset(static::$_instance)){
 			static::$_instance = new static;
 		}
-		return self::$_instance;
+		return static::$_instance;
 	}
 
 	static function where(...$args){
