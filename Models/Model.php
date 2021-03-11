@@ -117,7 +117,7 @@ class Model {
 	}
 
 	function first(){
-		return self::getQuery()[0];
+		return self::getQuery()[0] ?? null;
 	}
 	
 	static function delete($id){
