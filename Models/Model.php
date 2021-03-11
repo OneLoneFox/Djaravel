@@ -109,6 +109,7 @@ class Model {
 
 		// clear afterwards to allow making a new query
 		static::$_instance = null;
+		static::$statement = null;
 		static::$query = null;
 		static::$queryParams = null;
 
