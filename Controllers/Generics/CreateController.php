@@ -106,7 +106,7 @@ class CreateController extends BaseController
 						'options' => $options,
 					];
 					if($selected !== null){
-						$data[$name]['selected'] = $selected;
+						$data[$inputType]['selected'] = $selected;
 					}
 				}else{
 					$inputType = $field->inputType;
