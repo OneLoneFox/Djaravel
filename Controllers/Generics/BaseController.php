@@ -22,6 +22,10 @@ class BaseController
 	function getContextData(...$args){
 		$context = [
 			'user' => $_SESSION['user'] ?? null,
+			'request' => [
+				'get' => $_GET,
+				'post' => $_POST
+			]
 		];
 		return $context;
 	}
