@@ -83,6 +83,8 @@ class CreateController extends BaseController
 		$fields = $this->model::getFields();
 		$data = array();
 		$required = array();
+		# formr is a really really badly designed library
+		$selectCount = 0;
 		foreach ($fields as $name => $field){
 			// If it's a primary key we just don't add the id field
 			if(!$field instanceof PrimaryKeyField){
@@ -92,7 +94,7 @@ class CreateController extends BaseController
 				}
 				if(isset($field->choices)){
 					// If choices are set, use a <select> instead of the defined type
-					$inputType = 'select';
+					$inputType = 'select'.$selectCount++;
 					// The choices are an associative array of value => name pairs
 					$options = $field->choices;
 					$selected = $field->defaultSelected;
@@ -104,11 +106,12 @@ class CreateController extends BaseController
 						'options' => $options,
 					];
 					if($selected !== null){
-						$data[$inputType]['selected'] = $selected;
+						$data[$name]['selected'] = $selected;
 					}
 				}else{
 					$inputType = $field->inputType;
-					$data[$inputType] = [
+					$data[$name] = [
+						'type' => $inputType,
 						'id' => $name,
 						'name' => $name,
 						'label' => $field->verboseName,
