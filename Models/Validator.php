@@ -21,14 +21,23 @@ class Validator
 		});
 		foreach ($fields as $name => $field){
 			$value = $model->{$name};
+			// Validate value type
 			if ($field->type !== 'string'){
 				if(filter_var($value, $field->validate) === false){
 					$this->errors[$name][] = 'Field '.$name.' must be of type '.$field->type;
 				}
 			}
+			// Validate max length of field
 			if(isset($field->maxLength)){
 				if(strlen($value) > $field->maxLength){
 					$this->errors[$name][] = sprintf('Exceeded maximum length (%s)',$field->maxLength);
+				}
+			}
+			// Validate choices
+			if (isset($field->choices)) {
+				// Makes sure the selected value exists as a choice
+				if (!array_key_exists($value, $field->choices)) {
+					$this->errors[$name][] = 'The value is not a valid choice';
 				}
 			}
 		}
