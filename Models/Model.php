@@ -36,43 +36,43 @@ class Model {
 		$statement = 'SELECT ';
 		$columns = implode(', ', $args);
 		static::$statement = $statement . $columns . ' FROM ' . static::$table . ' WHERE ';
-		if(!isset(static::$_instance)){
-			static::$_instance = new static;
+		if(!isset(self::$_instance)){
+			self::$_instance = new static;
 		}
-		return static::$_instance;
+		return self::$_instance;
 	}
 
 	static function where(...$args){
 		# It's instantly instantiated bc we need to access the getFields method of the child class
-		if(!isset(static::$_instance)){
-			static::$_instance = new static;
+		if(!isset(self::$_instance)){
+			self::$_instance = new static;
 		}
 		self::validateQueryArgs(...$args);
 		if(count($args) == 2){
 			# if the number of arguments is 2 then we use the operator
 			# parameter as the value and assume an equality operation
 			$query = $args[0] . ' = ?';
-			static::$queryParams[] = $args[1];
+			self::$queryParams[] = $args[1];
 		}
 		if(count($args) == 3){
 			# arg[0] is the column, arg[1] is the operator, arg[2] is the value
 			$query = $args[0] . ' ' . $args[1] . ' ?';
-			static::$queryParams[] = $args[2];
+			self::$queryParams[] = $args[2];
 		}
-		if(isset(static::$query) and static::$query != ''){
-			static::$query = static::$query . ' AND ' . $query;
+		if(isset(self::$query) and self::$query != ''){
+			self::$query = self::$query . ' AND ' . $query;
 		}else{
 			# First call in the chain
-			static::$query = $query;
+			self::$query = $query;
 		}
-		return static::$_instance;
+		return self::$_instance;
 	}
 
 	public function orWhere(...$args){
 		# Is there any way to prevent doing this copy-paste bs?
 		# oh right if only PHP had named arguments. Fuck PHP.
-		if(!isset(static::$_instance)){
-			static::$_instance = new static;
+		if(!isset(self::$_instance)){
+			self::$_instance = new static;
 		}
 		self::validateQueryArgs(...$args);
 		if(count($args) == 2){
@@ -83,10 +83,10 @@ class Model {
 		if(count($args) == 3){
 			$query = $args[0] . " " . $args[1] . " " . $args[2];
 		}
-		if(isset(static::$query) and static::$query != ''){
-			static::$query = static::$query . " OR " . $query;
+		if(isset(self::$query) and self::$query != ''){
+			self::$query = self::$query . " OR " . $query;
 		}
-		return static::$_instance;
+		return self::$_instance;
 	}
 
 	protected static function validateQueryArgs(...$args){
@@ -98,20 +98,20 @@ class Model {
 
 	function getQuery(){
 		$connection = DB::getConnection();
-		if(!isset(static::$statement)){
+		if(!isset(self::$statement)){
 			$statement = 'SELECT * FROM '.static::$table.' where ';
-			static::$statement = $statement;
+			self::$statement = $statement;
 		}
-		$query = $connection->prepare(static::$statement.static::$query);
+		$query = $connection->prepare(self::$statement.self::$query);
 		$query->setFetchMode(\PDO::FETCH_CLASS, static::class);
-		$query->execute(static::$queryParams);
+		$query->execute(self::$queryParams);
 		$result = $query->fetchAll();
 
 		// clear afterwards to allow making a new query
-		static::$_instance = null;
-		static::$statement = null;
-		static::$query = null;
-		static::$queryParams = null;
+		self::$_instance = null;
+		self::$statement = null;
+		self::$query = null;
+		self::$queryParams = null;
 
 		return $result;
 	}
