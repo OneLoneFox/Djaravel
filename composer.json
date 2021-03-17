@@ -6,6 +6,7 @@
         "bramus/router": "~1.5",
         "vlucas/phpdotenv": "^5.3",
         "twig/twig": "^3.0",
-		"formr/formr": "^1.2"
+		"formr/formr": "^1.2",
+		"symfony/polyfill-iconv": "^1.22"
     }
 }
