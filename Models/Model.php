@@ -8,7 +8,7 @@ use \Djaravel\Models\Fields\PrimaryKeyField;
 
 class Model {
 	private static $statement;
-	private static $query;
+	private static $query = '';
 	private static $queryParams = array();
 	private static $orderBy = '';
 	private static $_instance;
@@ -97,7 +97,7 @@ class Model {
 		}
 	}
 
-	public function orderBy($column, $direction = 'asc'){
+	static function orderBy($column, $direction = 'asc'){
 		if (!in_array($direction, ['asc', 'desc'])) {
 			throw new InvalidArgumentException("The direction must be either 'asc' or 'desc'");
 		}
@@ -117,7 +117,10 @@ class Model {
 	function getQuery(){
 		$connection = DB::getConnection();
 		if(!isset(self::$statement)){
-			$statement = 'SELECT * FROM '.static::$table.' where ';
+			$statement = 'SELECT * FROM '.static::$table;
+			if (isset(self::$query) && self::$query != '') {
+				$statement .= ' where ';
+			}
 			self::$statement = $statement;
 		}
 		$query = $connection->prepare(self::$statement.self::$query.self::$orderBy);
@@ -128,7 +131,7 @@ class Model {
 		// clear afterwards to allow making a new query
 		self::$_instance = null;
 		self::$statement = null;
-		self::$query = null;
+		self::$query = '';
 		self::$orderBy = '';
 		self::$queryParams = null;
 
