@@ -10,6 +10,7 @@ class Model {
 	private static $statement;
 	private static $query;
 	private static $queryParams = array();
+	private static $orderBy = '';
 	private static $_instance;
 
 	static function all(){
@@ -96,13 +97,30 @@ class Model {
 		}
 	}
 
+	public function orderBy($column, $direction = 'asc'){
+		if (!in_array($direction, ['asc', 'desc'])) {
+			throw new InvalidArgumentException("The direction must be either 'asc' or 'desc'");
+		}
+		if (!isset(self::$_instance)) {
+			self::$_instance = new static;
+		}
+		$orderQuery = $column . ' ' . $direction;
+		if(isset(self::$orderBy) && self::$orderBy != ''){
+			self::$orderBy = self::$orderBy . ', ' . $orderQuery;
+		}else{
+			// first orderBy call
+			self::$orderBy = ' ORDER BY '.$orderQuery;
+		}
+		return self::$_instance;
+	}
+
 	function getQuery(){
 		$connection = DB::getConnection();
 		if(!isset(self::$statement)){
 			$statement = 'SELECT * FROM '.static::$table.' where ';
 			self::$statement = $statement;
 		}
-		$query = $connection->prepare(self::$statement.self::$query);
+		$query = $connection->prepare(self::$statement.self::$query.self::$orderBy);
 		$query->setFetchMode(\PDO::FETCH_CLASS, static::class);
 		$query->execute(self::$queryParams);
 		$result = $query->fetchAll();
@@ -111,6 +129,7 @@ class Model {
 		self::$_instance = null;
 		self::$statement = null;
 		self::$query = null;
+		self::$orderBy = '';
 		self::$queryParams = null;
 
 		return $result;
