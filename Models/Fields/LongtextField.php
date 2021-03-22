@@ -9,6 +9,6 @@ namespace Djaravel\Models\Fields;
 class LongtextField extends VarcharField
 {
 	function __construct($nullable = false, $verboseName){
-		parent::__construct($nullable, -1, $verboseName)
+		parent::__construct($nullable, -1, $verboseName);
 	}
 }
