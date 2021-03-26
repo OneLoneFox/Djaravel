@@ -215,12 +215,13 @@ class Model {
 			array_keys($columns)
 		);
 		$setQuery = implode(', ', $setQuery);
-		$query = "UPDATE ".static::$table." SET ".$setQuery." WHERE id = :id";
+		$prep = "UPDATE ".static::$table." SET ".$setQuery." WHERE id = :id";
+		$query = $connection->prepare($prep);
 		// Use the serialized data which is already in a [$k => $v] format
 		$data = $this->serialize();
-		# execute($data)
-		die($query);
-		
+		$result = $query->execute($data);
+		$count = $query->rowCount();
+		return $count > 0;
 	}
 	
 	/**

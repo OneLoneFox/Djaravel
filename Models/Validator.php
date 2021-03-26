@@ -21,6 +21,11 @@ class Validator
 		});
 		foreach ($fields as $name => $field){
 			$value = $model->{$name};
+			if (!$field->nullable){
+				if($value == null || $value == ''){
+					$this->errors[$name][] = 'Field must not be null';
+				}
+			}
 			// Validate value type
 			if ($field->type !== 'string'){
 				if(filter_var($value, $field->validate) === false){
