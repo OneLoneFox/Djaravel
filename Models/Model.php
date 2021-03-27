@@ -11,6 +11,7 @@ class Model {
 	private static $query = '';
 	private static $queryParams = array();
 	private static $orderBy = '';
+	private static $limitQuery = '';
 	private static $_instance;
 
 	static function all(){
@@ -114,6 +115,20 @@ class Model {
 		return self::$_instance;
 	}
 
+	static function paginate($pageSize, $page){
+		if (!isset(self::$_instance)) {
+			self::$_instance = new static;
+		}
+		$connection = DB::getConnection();
+		$count = self::count();
+		$totalPages = ceil($count / $pageSize);
+		$offset = $pageSize * ($page - 1);
+
+		$limitQuery = ' LIMIT '.$offset.', '.$pageSize;
+		self::$limitQuery = $limitQuery;
+		return self::$_instance;
+	}
+
 	function getQuery(){
 		$connection = DB::getConnection();
 		if(!isset(self::$statement)){
@@ -123,7 +138,7 @@ class Model {
 			}
 			self::$statement = $statement;
 		}
-		$query = $connection->prepare(self::$statement.self::$query.self::$orderBy);
+		$query = $connection->prepare(self::$statement.self::$query.self::$orderBy.self::$limitQuery);
 		$query->setFetchMode(\PDO::FETCH_CLASS, static::class);
 		$query->execute(self::$queryParams);
 		$result = $query->fetchAll();
@@ -133,6 +148,7 @@ class Model {
 		self::$statement = null;
 		self::$query = '';
 		self::$orderBy = '';
+		self::$limitQuery = '';
 		self::$queryParams = null;
 
 		return $result;
@@ -160,6 +176,11 @@ class Model {
 		}
 		// If it doesn't, make an insert query.
 		return $this->create();
+	}
+
+	static function count(){
+		$connection = DB::getConnection();
+		return $connection->query('SELECT COUNT(*) FROM '.static::$table)->fetchColumn();
 	}
 	
 	/**
