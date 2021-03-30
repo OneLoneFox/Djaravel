@@ -12,6 +12,7 @@ class Model {
 	private static $queryParams = array();
 	private static $orderBy = '';
 	private static $limitQuery = '';
+	private static $joinQuery = '';
 	private static $_instance;
 
 	static function all(){
@@ -37,10 +38,18 @@ class Model {
 	static function select(...$args){
 		$statement = 'SELECT ';
 		$columns = implode(', ', $args);
-		static::$statement = $statement . $columns . ' FROM ' . static::$table . ' WHERE ';
+		self::$statement = $statement . $columns . ' FROM ' . static::$table;
 		if(!isset(self::$_instance)){
 			self::$_instance = new static;
 		}
+		return self::$_instance;
+	}
+
+	static function join($table, $fieldLeft, $operator, $fieldRight){
+		if(!isset(self::$_instance)){
+			self::$_instance = new static;
+		}
+		self::$joinQuery = "INNER JOIN $table ON $fieldLeft $operator $fieldRight";
 		return self::$_instance;
 	}
 
@@ -120,8 +129,6 @@ class Model {
 			self::$_instance = new static;
 		}
 		$connection = DB::getConnection();
-		$count = self::count();
-		$totalPages = ceil($count / $pageSize);
 		$offset = $pageSize * ($page - 1);
 
 		$limitQuery = ' LIMIT '.$offset.', '.$pageSize;
@@ -133,12 +140,16 @@ class Model {
 		$connection = DB::getConnection();
 		if(!isset(self::$statement)){
 			$statement = 'SELECT * FROM '.static::$table;
+			$statement = $statement. ' '. self::$joinQuery;
 			if (isset(self::$query) && self::$query != '') {
-				$statement .= ' where ';
+				$statement .= ' WHERE ';
 			}
 			self::$statement = $statement;
+		}else{
+			self::$statement = self::$statement .' '. self::$joinQuery . ' WHERE ';
 		}
-		$query = $connection->prepare(self::$statement.self::$query.self::$orderBy.self::$limitQuery);
+		$builtQuery = self::$statement.self::$query.self::$orderBy.self::$limitQuery;
+		$query = $connection->prepare($builtQuery);
 		$query->setFetchMode(\PDO::FETCH_CLASS, static::class);
 		$query->execute(self::$queryParams);
 		$result = $query->fetchAll();
@@ -149,6 +160,7 @@ class Model {
 		self::$query = '';
 		self::$orderBy = '';
 		self::$limitQuery = '';
+		self::$joinQuery = '';
 		self::$queryParams = null;
 
 		return $result;
