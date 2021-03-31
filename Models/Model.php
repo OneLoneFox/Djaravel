@@ -146,7 +146,10 @@ class Model {
 			}
 			self::$statement = $statement;
 		}else{
-			self::$statement = self::$statement .' '. self::$joinQuery . ' WHERE ';
+			self::$statement = self::$statement .' '. self::$joinQuery;
+			if (isset(self::$query) && self::$query != '') {
+				self::$statement .= ' WHERE ';
+			}
 		}
 		$builtQuery = self::$statement.self::$query.self::$orderBy.self::$limitQuery;
 		$query = $connection->prepare($builtQuery);
